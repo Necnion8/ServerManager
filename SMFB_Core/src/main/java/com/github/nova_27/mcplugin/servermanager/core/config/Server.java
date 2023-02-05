@@ -238,6 +238,9 @@ public class Server {
      * @return true タイマーが起動していなかった
      */
     public boolean StartTimer() {
+        if (-1 <= ConfigData.CloseTime)
+            return false;
+
         if (task == null) {
             task = new TimerTask() {
                 @Override
@@ -257,13 +260,13 @@ public class Server {
 
                         TimerTask task = this;
                         timer = new Timer();
-                        timer.schedule(task, ConfigData.CloseTime * 60000);
+                        timer.schedule(task, ConfigData.CloseTime * 60000L);
                     }
                 }
             };
 
             timer = new Timer();
-            timer.schedule(task, ConfigData.CloseTime * 60000);
+            timer.schedule(task, ConfigData.CloseTime * 60000L);
 
             return true;
         }else{

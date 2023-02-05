@@ -56,9 +56,10 @@ public class BungeeListener implements Listener {
     public void onLogout(PlayerDisconnectEvent e) {
         if (ProxyServer.getInstance().getPlayers().size() == 1) {
             //0人になったら
-            Lobby.StartTimer();
-            Smfb_core.getInstance().log(Tools.Formatter(Messages.TimerStarted_log.toString(), ""+ ConfigData.CloseTime, Lobby.Name));
-            Smfb_core.getInstance().getProxy().getPluginManager().callEvent(new TimerEvent(Lobby, TimerEvent.EventType.TimerStarted));
+            if (Lobby.StartTimer()) {
+                Smfb_core.getInstance().log(Tools.Formatter(Messages.TimerStarted_log.toString(), "" + ConfigData.CloseTime, Lobby.Name));
+                Smfb_core.getInstance().getProxy().getPluginManager().callEvent(new TimerEvent(Lobby, TimerEvent.EventType.TimerStarted));
+            }
         }
     }
 

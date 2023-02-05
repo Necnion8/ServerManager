@@ -1,5 +1,6 @@
 # 省電力自動サーバー停止機能
 # Power saving automatic server stop function
+# Set to -1 to disable (-1 でこの機能を無効化)
 CloseTime: [全プレイヤー退出の何分後に閉じるか(How many minutes after all players leave to close)]
 
 # ソケット通信に関する設定
