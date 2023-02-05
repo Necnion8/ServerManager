@@ -198,8 +198,11 @@ public final class Smfb_core extends Plugin implements PacketEventListener {
 
         // 起動完了かつプレイヤーが未参加であれば停止タイマーを開始する
         ServerInfo bungeeServerInfo = getProxy().getServerInfo(srcServer.ID);
-        if (bungeeServerInfo != null && bungeeServerInfo.getPlayers().isEmpty())
-            srcServer.StartTimer();
+        if (bungeeServerInfo != null && bungeeServerInfo.getPlayers().isEmpty()) {
+            if (srcServer.StartTimer()) {
+                Smfb_core.getInstance().getProxy().getPluginManager().callEvent(new TimerEvent(srcServer, TimerEvent.EventType.TimerStarted));
+            }
+        }
 
         Smfb_core.getInstance().getProxy().getPluginManager().callEvent(new ServerEvent(srcServer, ServerEvent.EventType.ServerStarted));
     }
