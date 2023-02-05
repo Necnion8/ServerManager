@@ -56,6 +56,10 @@ public class ConfigGetter {
             }
 
             ConfigData.Servers[i] = new Server(Id, Name, Port, Dir, File, Args, JavaCmd);
+
+            if (plugin_configuration.contains("Server." + Id + ".CloseTime"))
+                ConfigData.Servers[i].CloseTime = plugin_configuration.getInt("Server." + Id + ".CloseTime", -1);
+
         }
 
         //ロビーサーバーを取得

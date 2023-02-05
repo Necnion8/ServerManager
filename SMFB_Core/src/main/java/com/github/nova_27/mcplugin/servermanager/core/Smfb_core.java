@@ -220,8 +220,8 @@ public final class Smfb_core extends Plugin implements PacketEventListener {
 
         if(playerCount == 0) {
             if(srcServer.StartTimer()) {
-                log(Tools.Formatter(Messages.TimerStarted_log.toString(), "" + ConfigData.CloseTime, srcServer.Name));
-                ProxyServer.getInstance().broadcast(new TextComponent(Tools.Formatter(Messages.TimerStarted_Minecraft.toString(), "" + ConfigData.CloseTime, srcServer.Name)));
+                log(Tools.Formatter(Messages.TimerStarted_log.toString(), "" + srcServer.CloseTime, srcServer.Name));
+                ProxyServer.getInstance().broadcast(new TextComponent(Tools.Formatter(Messages.TimerStarted_Minecraft.toString(), "" + srcServer.CloseTime, srcServer.Name)));
                 Smfb_core.getInstance().getProxy().getPluginManager().callEvent(new TimerEvent(srcServer, TimerEvent.EventType.TimerStarted));
             }
         }else{

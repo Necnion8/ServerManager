@@ -24,3 +24,4 @@ Server:
     File: [サーバー1の実行ファイル名(Server jar file name)]
     Args: [引数(-jarは不要) (Arguments [Don't include -jar argument])]
     #JavaCmd: [Java Command (optional)]
+    #CloseTime: [Override global 'CloseTime' setting (optional)]

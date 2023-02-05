@@ -31,6 +31,7 @@ public class Server {
     private String File;
     private String Args;
     private String JavaCmd;
+    public int CloseTime = ConfigData.CloseTime;
 
     //サーバープロセス
     public Process Process = null;
@@ -238,7 +239,7 @@ public class Server {
      * @return true タイマーが起動していなかった
      */
     public boolean StartTimer() {
-        if (-1 <= ConfigData.CloseTime)
+        if (-1 <= CloseTime)
             return false;
 
         if (task == null) {
@@ -260,13 +261,13 @@ public class Server {
 
                         TimerTask task = this;
                         timer = new Timer();
-                        timer.schedule(task, ConfigData.CloseTime * 60000L);
+                        timer.schedule(task, CloseTime * 60000L);
                     }
                 }
             };
 
             timer = new Timer();
-            timer.schedule(task, ConfigData.CloseTime * 60000L);
+            timer.schedule(task, CloseTime * 60000L);
 
             return true;
         }else{
