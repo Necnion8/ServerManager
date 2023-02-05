@@ -94,66 +94,7 @@ public class Server {
      * サーバーをスタートする
      */
     public void StartServer() {
-        //有効かつ未処理で開始されていないときは開始
-        if(!Started && !Switching && Enabled) {
-            if (ProxyServer.getInstance().getPluginManager().callEvent(new ServerPreStartEvent(this, null)).isCancelled())
-                return;  // cancelled
-
-            try {
-                Started = true;
-                Switching = true;
-
-                String JavaCmd = (this.JavaCmd != null && !this.JavaCmd.isEmpty()) ? this.JavaCmd : "java";
-
-                String OS_NAME = System.getProperty("os.name").toLowerCase();
-                if(OS_NAME.startsWith("linux")) {
-                    //Linuxの場合
-                    Process = new ProcessBuilder("/bin/bash","-c","cd  " + Dir + " ; " + JavaCmd + " -jar " + Args + " " + File).start();
-                }else if(OS_NAME.startsWith("windows")) {
-                    //Windowsの場合
-                    Runtime r = Runtime.getRuntime();
-                    Process = r.exec("cmd /c cd " + Dir + " && " + JavaCmd + " -jar " + Args + " " + File);
-                }
-
-                //バッファを読みだしてブロックを防ぐ
-                Smfb_core.getInstance().getProxy().getScheduler().schedule(Smfb_core.getInstance(), ()->{
-                    try {
-                        BufferedReader br = new BufferedReader(new InputStreamReader(Process.getInputStream()));
-
-                        while (true) {
-                            if (br.ready()) {
-                                //ログを取得
-                                String line = br.readLine();
-
-                                if (line == null)
-                                    break;
-                                if (Objects.equals(line, "")) {
-                                    continue;
-                                }
-
-                                if (Start_write >= BUF_CNT) {
-                                    Start_write = 0;
-                                }
-
-                                //配列に書き込む
-                                logs[Start_write] = line;
-                                Start_write++;
-
-                                Smfb_core.getInstance().getProxy().getPluginManager().callEvent(new ServerEvent(this, ServerEvent.EventType.ServerLogged));
-                            }else {
-                                Thread.sleep(100);
-                            }
-                        }
-                    } catch (IOException | InterruptedException ignored) { }
-                }, 0L, TimeUnit.SECONDS);
-
-                Smfb_core.getInstance().log(Tools.Formatter(Messages.ServerStarting_log.toString(), Name));
-                ProxyServer.getInstance().broadcast(new TextComponent(Tools.Formatter(Messages.ServerStarting_minecraft.toString(), Name)));
-                Smfb_core.getInstance().getProxy().getPluginManager().callEvent(new ServerEvent(this, ServerEvent.EventType.ServerStarting));
-            } catch (IOException e) {
-                Smfb_core.getInstance().log(Messages.IOError.toString());
-            }
-        }
+        StartServer(null);
     }
 
     /**
