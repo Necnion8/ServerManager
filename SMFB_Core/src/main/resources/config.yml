@@ -25,3 +25,5 @@ Server:
     Args: [引数(-jarは不要) (Arguments [Don't include -jar argument])]
     #JavaCmd: [Java Command (optional)]
     #CloseTime: [Override global 'CloseTime' setting (optional)]
+    #EnableShellCommandMode: false
+    #ShellCommand: java -Xmx1G -Xms1G -jar paper.jar

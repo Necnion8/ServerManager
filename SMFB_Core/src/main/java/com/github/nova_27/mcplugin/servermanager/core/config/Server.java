@@ -14,12 +14,14 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.config.Configuration;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 import static com.github.nova_27.mcplugin.servermanager.core.events.TimerEvent.EventType.TimerRestarted;
 
@@ -33,6 +35,12 @@ public class Server {
     private String Args;
     private String JavaCmd;
     public int CloseTime = ConfigData.CloseTime;
+    public boolean EnableShellCommandMode;
+    public String ShellCommand;
+    public boolean DisableRemoveControlCodeInShellCommandStdout;
+    private boolean calledShellCommand;
+    private static final Pattern ControlCodeRegex = Pattern.compile("\u001B\\[[\\d;]*[^\\d;]");
+    private static final Pattern ConsoleLinePrefixRegex = Pattern.compile("^>\\.+$");
 
     //サーバープロセス
     public Process Process = null;
@@ -104,6 +112,8 @@ public class Server {
      * @return サーバーの起動を開始したら真を返す
      */
     public boolean StartServer(Requester requester) {
+        calledShellCommand = false;
+
         //有効かつ未処理で開始されていないときは開始
         if(!Started && !Switching && Enabled) {
             if (ProxyServer.getInstance().getPluginManager().callEvent(new ServerPreStartEvent(this, requester)).isCancelled())
@@ -113,16 +123,24 @@ public class Server {
                 Started = true;
                 Switching = true;
 
-                String JavaCmd = (this.JavaCmd != null && !this.JavaCmd.isEmpty()) ? this.JavaCmd : "java";
+                if (EnableShellCommandMode && !ShellCommand.isEmpty()) {
+                    // shell mode
+                    Process = new ProcessBuilder(Tools.parseCommandArguments(ShellCommand))
+                            .directory(new File(Dir))
+                            .start();
+                    calledShellCommand = true;
 
-                String OS_NAME = System.getProperty("os.name").toLowerCase();
-                if(OS_NAME.startsWith("linux")) {
-                    //Linuxの場合
-                    Process = new ProcessBuilder("/bin/bash","-c","cd  " + Dir + " ; " + JavaCmd + " -jar " + Args + " " + File).start();
-                }else if(OS_NAME.startsWith("windows")) {
-                    //Windowsの場合
-                    Runtime r = Runtime.getRuntime();
-                    Process = r.exec("cmd /c cd " + Dir + " && " + JavaCmd + " -jar " + Args + " " + File);
+                } else {
+                    String JavaCmd = (this.JavaCmd != null && !this.JavaCmd.isEmpty()) ? this.JavaCmd : "java";
+                    String OS_NAME = System.getProperty("os.name").toLowerCase();
+                    if (OS_NAME.startsWith("linux")) {
+                        //Linuxの場合
+                        Process = new ProcessBuilder("/bin/bash", "-c", "cd  " + Dir + " ; " + JavaCmd + " -jar " + Args + " " + File).start();
+                    } else if (OS_NAME.startsWith("windows")) {
+                        //Windowsの場合
+                        Runtime r = Runtime.getRuntime();
+                        Process = r.exec("cmd /c cd " + Dir + " && " + JavaCmd + " -jar " + Args + " " + File);
+                    }
                 }
 
                 //バッファを読みだしてブロックを防ぐ
@@ -137,9 +155,14 @@ public class Server {
 
                                 if (line == null)
                                     break;
-                                if (Objects.equals(line, "")) {
-                                    continue;
+
+                                if (calledShellCommand && !DisableRemoveControlCodeInShellCommandStdout) {
+                                    line = ControlCodeRegex.matcher(line).replaceAll("");
+                                    line = ConsoleLinePrefixRegex.matcher(line).replaceAll("");
                                 }
+
+                                if (line.isEmpty())
+                                    continue;
 
                                 if (Start_write >= BUF_CNT) {
                                     Start_write = 0;
@@ -155,6 +178,9 @@ public class Server {
                             }
                         }
                     } catch (IOException | InterruptedException ignored) { }
+
+                    calledShellCommand = false;
+
                 }, 0L, TimeUnit.SECONDS);
 
                 Smfb_core.getInstance().log(Tools.Formatter(Messages.ServerStarting_log.toString(), Name));
@@ -311,6 +337,17 @@ public class Server {
         Args = section.getString("Args");
         JavaCmd = section.getString("JavaCmd");
         CloseTime = section.contains("CloseTime") ? section.getInt("CloseTime") : ConfigData.CloseTime;
+
+        EnableShellCommandMode = section.getBoolean("EnableShellCommandMode");
+        ShellCommand = section.getString("ShellCommand");
+        DisableRemoveControlCodeInShellCommandStdout = section.getBoolean("DisableRemoveControlCodeInStdout", false);
+    }
+
+    /**
+     * シェルコマンドモードで起動しているなら真を返す
+     */
+    public boolean RunningByShellCommand() {
+        return calledShellCommand;
     }
 
 }

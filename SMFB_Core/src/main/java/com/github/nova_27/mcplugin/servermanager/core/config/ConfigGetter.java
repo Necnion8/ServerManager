@@ -60,6 +60,10 @@ public class ConfigGetter {
             if (plugin_configuration.contains("Server." + Id + ".CloseTime"))
                 ConfigData.Servers[i].CloseTime = plugin_configuration.getInt("Server." + Id + ".CloseTime", -1);
 
+            ConfigData.Servers[i].EnableShellCommandMode = plugin_configuration.getBoolean("Server." + Id + ".EnableShellCommandMode");
+            ConfigData.Servers[i].ShellCommand = plugin_configuration.getString("Server." + Id + ".ShellCommand");
+            ConfigData.Servers[i].DisableRemoveControlCodeInShellCommandStdout = plugin_configuration.getBoolean("Server." + Id + ".DisableRemoveControlCodeInStdout", false);
+
         }
 
         //ロビーサーバーを取得
