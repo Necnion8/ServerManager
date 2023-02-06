@@ -181,7 +181,7 @@ public class Server {
      * @return true タイマーが起動していなかった
      */
     public boolean StartTimer() {
-        if (-1 <= CloseTime)
+        if (CloseTime <= -1)
             return false;
 
         if (task == null) {
