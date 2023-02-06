@@ -69,4 +69,28 @@ public class ConfigGetter {
         }
         ConfigData.Lobby = Server.getServerByID(lobbyName);
     }
+
+    /**
+     * configデータを取得する
+     * @param plugin_config プラグインのconfig
+     */
+    public static void ReloadConfigGet(File plugin_config) {
+        //プラグイン設定ファイルを読み込み
+        Configuration plugin_configuration;
+        try {
+            plugin_configuration = ConfigurationProvider.getProvider(YamlConfiguration.class).load(plugin_config);
+        } catch (IOException e) {
+            Smfb_core.getInstance().log(Messages.IOError.toString());
+            return;
+        }
+
+        ConfigData.CloseTime = plugin_configuration.getInt("CloseTime");
+
+        for (Server server : ConfigData.Servers) {
+            Configuration serverSection = plugin_configuration.getSection("Server." + server.ID);
+            if (serverSection != null)
+                server.LoadConfig(serverSection);
+        }
+    }
+
 }

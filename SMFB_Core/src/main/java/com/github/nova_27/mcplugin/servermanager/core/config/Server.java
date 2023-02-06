@@ -11,6 +11,7 @@ import com.github.nova_27.mcplugin.servermanager.core.utils.Requester;
 import com.github.nova_27.mcplugin.servermanager.core.utils.Tools;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.config.Configuration;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -298,4 +299,18 @@ public class Server {
 
         return readLogs;
     }
+
+    /**
+     * サーバーの設定を読み込む
+     * @param section サーバー設定を含んだConfiguration
+     */
+    public void LoadConfig(Configuration section) {
+        Name = section.getString("Name");
+        Dir = section.getString("Dir");
+        File = section.getString("File");
+        Args = section.getString("Args");
+        JavaCmd = section.getString("JavaCmd");
+        CloseTime = section.contains("CloseTime") ? section.getInt("CloseTime") : ConfigData.CloseTime;
+    }
+
 }

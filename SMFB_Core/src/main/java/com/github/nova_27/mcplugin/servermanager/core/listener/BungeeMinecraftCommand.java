@@ -14,7 +14,9 @@ import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.TextComponent;
 
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Collections;
+import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -33,6 +35,7 @@ public class BungeeMinecraftCommand extends MinecraftCommandExecutor {
     private static final String ENABLE_PERM = "enable";
     private static final String DISABLE_PERM = "disable";
     private static final String SEND_CMD_PERM = "send-cmd";
+    private static final String RELOAD_CONFIG_PERM = "reloadconfig";
 
     /**
      * コンストラクタ
@@ -47,6 +50,7 @@ public class BungeeMinecraftCommand extends MinecraftCommandExecutor {
         addSubCommand(new MinecraftSubCommandBuilder("enable", ENABLE_PERM, this::enableCmd, this::completeServers).requireArgs(1));
         addSubCommand(new MinecraftSubCommandBuilder("disable", DISABLE_PERM, this::disableCmd, this::completeServers).requireArgs(1));
         addSubCommand(new MinecraftSubCommandBuilder("send-cmd", SEND_CMD_PERM, this::sendcmd_Cmd, this::completeServers).requireArgs(2));
+        addSubCommand(new MinecraftSubCommandBuilder("reloadconfig", RELOAD_CONFIG_PERM, this::reloadCmd));
     }
 
     /**
@@ -62,6 +66,7 @@ public class BungeeMinecraftCommand extends MinecraftCommandExecutor {
         sender.sendMessage(new TextComponent(Messages.BungeeCommand_help_enablecmd.toString()));
         sender.sendMessage(new TextComponent(Messages.BungeeCommand_help_disablecmd.toString()));
         sender.sendMessage(new TextComponent(Messages.BungeeCommand_help_sendcmdCmd.toString()));
+        sender.sendMessage(new TextComponent(Messages.BungeeCommand_help_reloadconfigcmd.toString()));
     }
 
     /**
@@ -344,6 +349,14 @@ public class BungeeMinecraftCommand extends MinecraftCommandExecutor {
             ProxyServer.getInstance().broadcast(new TextComponent(Bridge.Formatter(Messages.BungeeCommand_new_request.toString(), requestServer.Name, requestServer.requests.size() + "", expiration_String)));
         }
     }*/
+
+    /**
+     * 設定ファイルの再読み込みコマンド
+     */
+    public void reloadCmd(CommandSender sender, String[] args) {
+        Smfb_core.getInstance().ReloadConfig();
+        sender.sendMessage(new TextComponent(Tools.Formatter(Messages.BungeeCommand_config_reloaded.toString())));
+    }
 
 
     private Iterable<String> completeServers(CommandSender sender, String[] args) {

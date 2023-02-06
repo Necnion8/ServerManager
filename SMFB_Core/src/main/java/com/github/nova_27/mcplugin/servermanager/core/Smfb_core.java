@@ -169,6 +169,20 @@ public final class Smfb_core extends Plugin implements PacketEventListener {
         getLogger().info(log);
     }
 
+    /**
+     * プラグインの設定ファイルを再読み込みし、可能な設定のみ直ちに適用します
+     */
+    public void ReloadConfig() {
+        //configファイル
+        File plugin_config = new File(getDataFolder(), "config.yml");
+        if (!plugin_config.exists())
+            return;
+
+        //データを格納
+        log(Messages.ConfigLoading.toString());
+        ConfigGetter.ReloadConfigGet(plugin_config);
+    }
+
     @Override
     public void IDRequest(byte[] gotData, ConnectionThread ct) {
     }

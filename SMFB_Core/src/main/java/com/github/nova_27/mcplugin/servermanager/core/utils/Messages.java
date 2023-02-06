@@ -55,8 +55,10 @@ public enum Messages {
     BungeeCommand_help_enablecmd,
     BungeeCommand_help_disablecmd,
     BungeeCommand_help_sendcmdCmd,
+    BungeeCommand_help_reloadconfigcmd,
     BungeeCommand_lobby_error,
     BungeeCommand_denied,
+    BungeeCommand_config_reloaded,
 
     BungeeCommand_status,
     BungeeCommand_status_process,
