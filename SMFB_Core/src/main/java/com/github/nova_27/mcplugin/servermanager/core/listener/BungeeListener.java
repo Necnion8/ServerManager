@@ -39,9 +39,8 @@ public class BungeeListener implements Listener {
             else if (Lobby.Switching){
                 //処理中だったら、キック
                 e.getPlayer().disconnect(new TextComponent(Messages.LobbySwitching.toString()));
-            }else{
-                //起動済みだったらタイマーストップ
-                Lobby.StopTimer();
+
+            } else if (Lobby.StopTimer()) {  //起動済みだったらタイマーストップ
                 Smfb_core.getInstance().log(Tools.Formatter(Messages.TimerStopped_log.toString(), Lobby.Name));
                 Smfb_core.getInstance().getProxy().getPluginManager().callEvent(new TimerEvent(Lobby, TimerStopped));
             }
@@ -73,8 +72,7 @@ public class BungeeListener implements Listener {
             if(server == Lobby) continue;
 
             //タイマーのストップ
-            if(server.equals(e.getPlayer().getServer().getInfo().getName())) {
-                server.StopTimer();
+            if(server.equals(e.getPlayer().getServer().getInfo().getName()) && server.StopTimer()) {
                 Smfb_core.getInstance().log(Tools.Formatter(Messages.TimerStopped_log.toString(), server.Name));
                 ProxyServer.getInstance().broadcast(new TextComponent(Tools.Formatter(Messages.TimerStopped_Minecraft.toString(), server.Name)));
             }
