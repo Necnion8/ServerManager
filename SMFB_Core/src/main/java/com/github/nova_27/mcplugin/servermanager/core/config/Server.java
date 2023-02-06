@@ -223,9 +223,9 @@ public class Server {
     public boolean StopTimer() {
         if(task == null) return false;
 
-        task.cancel();
+        boolean cancelled = task.cancel();
         task = null;
-        return true;
+        return cancelled;
     }
 
     /**
