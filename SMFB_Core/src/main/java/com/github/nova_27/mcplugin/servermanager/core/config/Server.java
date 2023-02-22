@@ -40,7 +40,7 @@ public class Server {
     public boolean DisableRemoveControlCodeInShellCommandStdout;
     private boolean calledShellCommand;
     private static final Pattern ControlCodeRegex = Pattern.compile("\u001B\\[[\\d;]*[^\\d;]");
-    private static final Pattern ConsoleLinePrefixRegex = Pattern.compile("^>\\.+$");
+    private static final Pattern ConsoleLinePrefixRegex = Pattern.compile("^>\\.* *$");
 
     //サーバープロセス
     public Process Process = null;
