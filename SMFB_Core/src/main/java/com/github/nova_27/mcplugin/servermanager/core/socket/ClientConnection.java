@@ -36,6 +36,7 @@ public class ClientConnection extends ConnectionThread {
     @Override
     public void finalProgress() {
         Smfb_core.getInstance().getProxy().getScheduler().schedule(Smfb_core.getInstance(), ()->{
+            srcServer.StopTimer();
             try {
                 srcServer.Process.waitFor();
             } catch (InterruptedException e) {
