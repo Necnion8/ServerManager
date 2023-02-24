@@ -224,7 +224,6 @@ public final class Smfb_core extends Plugin implements PacketEventListener {
     @Override
     public void PlayerCountResponse(byte[] gotData, ConnectionThread ct) {
         Server srcServer = ((ClientConnection)ct).getSrcServer();
-        if(srcServer == Lobby) return;
 
         byte[] playerCount_byte = Arrays.copyOfRange(gotData, 0, 4);
         int playerCount = (((short) playerCount_byte[0]) & 0x00FF) * 16777216 +
@@ -232,17 +231,17 @@ public final class Smfb_core extends Plugin implements PacketEventListener {
                 (((short) playerCount_byte[2]) & 0x00FF) * 256 +
                 (((short) playerCount_byte[3]) & 0x00FF);
 
-        if(playerCount == 0) {
+        if (playerCount != 0) {
+            if (srcServer.StopTimer()) {
+                Smfb_core.getInstance().log(Tools.Formatter(Messages.TimerStopped_log.toString(), srcServer.Name));
+                ProxyServer.getInstance().broadcast(new TextComponent(Tools.Formatter(Messages.TimerStopped_Minecraft.toString(), srcServer.Name)));
+                Smfb_core.getInstance().getProxy().getPluginManager().callEvent(new TimerEvent(srcServer, TimerStopped));
+            }
+        } else if (!srcServer.equals(Lobby) || 0 >= getProxy().getOnlineCount()) {  // ロビー以外 OR プロキシ上に誰も居ない場合
             if(srcServer.StartTimer()) {
                 log(Tools.Formatter(Messages.TimerStarted_log.toString(), "" + srcServer.CloseTime, srcServer.Name));
                 ProxyServer.getInstance().broadcast(new TextComponent(Tools.Formatter(Messages.TimerStarted_Minecraft.toString(), "" + srcServer.CloseTime, srcServer.Name)));
                 Smfb_core.getInstance().getProxy().getPluginManager().callEvent(new TimerEvent(srcServer, TimerEvent.EventType.TimerStarted));
-            }
-        }else{
-            if(srcServer.StopTimer()) {
-                Smfb_core.getInstance().log(Tools.Formatter(Messages.TimerStopped_log.toString(), srcServer.Name));
-                ProxyServer.getInstance().broadcast(new TextComponent(Tools.Formatter(Messages.TimerStopped_Minecraft.toString(), srcServer.Name)));
-                Smfb_core.getInstance().getProxy().getPluginManager().callEvent(new TimerEvent(srcServer, TimerStopped));
             }
         }
     }
