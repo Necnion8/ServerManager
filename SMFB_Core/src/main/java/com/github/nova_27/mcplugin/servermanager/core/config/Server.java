@@ -47,6 +47,7 @@ public class Server {
     public boolean Started = false;
     public boolean Switching = false;
     public boolean Enabled = true;
+    private long launchTime;  // 負なら起動開始した時刻。正なら起動にかかった時間(millis)
 
     //ログ
     private static final int BUF_CNT = 30;
@@ -142,6 +143,8 @@ public class Server {
                         Process = r.exec("cmd /c cd " + Dir + " && " + JavaCmd + " -jar " + Args + " " + File);
                     }
                 }
+
+                launchTime = -System.currentTimeMillis();
 
                 //バッファを読みだしてブロックを防ぐ
                 Smfb_core.getInstance().getProxy().getScheduler().schedule(Smfb_core.getInstance(), ()->{
@@ -350,4 +353,20 @@ public class Server {
         return calledShellCommand;
     }
 
+    /**
+     * 起動完了したことをマークして、起動にかかった時間を設定し、返します
+     */
+    public long markStarted() {
+        if (0 <= launchTime)
+            return launchTime;
+        launchTime = System.currentTimeMillis() + launchTime;
+        return launchTime;
+    }
+
+    /**
+     * 負なら起動開始した時刻。正なら起動にかかった時間(millis)
+     */
+    public long getLaunchedTime() {
+        return launchTime;
+    }
 }

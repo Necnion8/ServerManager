@@ -12,6 +12,7 @@ import com.github.nova_27.mcplugin.servermanager.core.listener.BungeeMinecraftCo
 import com.github.nova_27.mcplugin.servermanager.core.socket.ClientConnection;
 import com.github.nova_27.mcplugin.servermanager.core.socket.SocketServer;
 import com.github.nova_27.mcplugin.servermanager.core.utils.Messages;
+import com.github.nova_27.mcplugin.servermanager.core.utils.StatisticsConfig;
 import com.github.nova_27.mcplugin.servermanager.core.utils.Tools;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -39,6 +40,9 @@ public final class Smfb_core extends Plugin implements PacketEventListener {
     private static Smfb_core instance;
 
     private SocketServer socketServer;
+
+    private StatisticsConfig statistics;
+
 
     /**
      * インスタンスを返す
@@ -142,6 +146,10 @@ public final class Smfb_core extends Plugin implements PacketEventListener {
                 }
             });
         }
+
+        // 統計データファイル
+        statistics = new StatisticsConfig(new File(getDataFolder(), "statistics.yml"));
+        statistics.load();
     }
 
     @Override
@@ -183,6 +191,13 @@ public final class Smfb_core extends Plugin implements PacketEventListener {
         ConfigGetter.ReloadConfigGet(plugin_config);
     }
 
+    /**
+     * 統計データクラスを返します
+     */
+    public StatisticsConfig getStatistics() {
+        return statistics;
+    }
+
     @Override
     public void IDRequest(byte[] gotData, ConnectionThread ct) {
     }
@@ -201,6 +216,7 @@ public final class Smfb_core extends Plugin implements PacketEventListener {
                 srcServer = server;
                 srcServer.Started = true;
                 srcServer.Switching = false;
+                srcServer.markStarted();
             }
         }
         if(srcServer == null) return;
@@ -219,6 +235,12 @@ public final class Smfb_core extends Plugin implements PacketEventListener {
         }
 
         Smfb_core.getInstance().getProxy().getPluginManager().callEvent(new ServerEvent(srcServer, ServerEvent.EventType.ServerStarted));
+
+        if (Lobby.equals(srcServer)) {
+            statistics.setLobbyLastStartTime(System.currentTimeMillis());
+            statistics.setLobbyLastStartProcessTime(srcServer.getLaunchedTime());
+            statistics.save();
+        }
     }
 
     @Override

@@ -27,6 +27,8 @@ public enum Messages {
 
     LobbyNotStarted,
     LobbySwitching,
+    LobbyNotStartedRemaining,
+    LobbySwitchingRemaining,
 
     ServerStarting_log,
     ServerStarting_minecraft,

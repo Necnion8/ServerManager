@@ -15,6 +15,8 @@ import net.md_5.bungee.api.event.ServerSwitchEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 
+import java.util.OptionalLong;
+
 import static com.github.nova_27.mcplugin.servermanager.core.config.ConfigData.Lobby;
 import static com.github.nova_27.mcplugin.servermanager.core.events.TimerEvent.EventType.TimerStopped;
 
@@ -33,12 +35,29 @@ public class BungeeListener implements Listener {
             //サーバーを起動
             if (!Lobby.Started) {
                 //起動していなかったら、キック
-                e.getPlayer().disconnect(new TextComponent(Messages.LobbyNotStarted.toString()));
+
+                OptionalLong processTime = Smfb_core.getInstance().getStatistics().getLobbyLastStartProcessTime();
+                if (processTime.isPresent()) {
+                    long remaining = (long) (Math.floor((double) processTime.getAsLong() / 1000 / 10) * 10);
+                    e.getPlayer().disconnect(new TextComponent(Tools.Formatter(Messages.LobbyNotStartedRemaining.toString(), String.valueOf(remaining))));
+                } else {
+                    e.getPlayer().disconnect(new TextComponent(Messages.LobbyNotStarted.toString()));
+                }
                 Lobby.StartServer();
             }
             else if (Lobby.Switching){
                 //処理中だったら、キック
-                e.getPlayer().disconnect(new TextComponent(Messages.LobbySwitching.toString()));
+                OptionalLong processTime = Smfb_core.getInstance().getStatistics().getLobbyLastStartProcessTime();
+                if (processTime.isPresent() && Lobby.getLaunchedTime() < 0) {
+                    long remaining = processTime.getAsLong() - (System.currentTimeMillis() + Lobby.getLaunchedTime());
+                    remaining = (long) (Math.floor((double) remaining / 1000 / 10) * 10);
+
+                    e.getPlayer().disconnect(new TextComponent((0 < remaining) ?
+                            Tools.Formatter(Messages.LobbySwitchingRemaining.toString(), String.valueOf(remaining))
+                            : Messages.LobbySwitching.toString()));
+                } else {
+                    e.getPlayer().disconnect(new TextComponent(Messages.LobbySwitching.toString()));
+                }
 
             } else if (Lobby.StopTimer()) {  //起動済みだったらタイマーストップ
                 Smfb_core.getInstance().log(Tools.Formatter(Messages.TimerStopped_log.toString(), Lobby.Name));
