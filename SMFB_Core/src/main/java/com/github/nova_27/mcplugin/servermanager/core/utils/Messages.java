@@ -4,6 +4,7 @@ import com.github.nova_27.mcplugin.servermanager.core.Smfb_core;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.MissingResourceException;
 import java.util.PropertyResourceBundle;
 
 /**
@@ -92,6 +93,8 @@ public enum Messages {
             BufferedReader reader = new BufferedReader(fileReader);
 
             return new PropertyResourceBundle(reader).getString(name());
+        } catch (MissingResourceException e) {
+            return name();
         }catch (IOException e) {
             return "";
         }
